@@ -575,7 +575,10 @@ document.querySelectorAll('.tab').forEach(tab => {
         </div>
       </div>`;
     // Auto-play on render
-    setTimeout(() => speak(q.word.term), 300);
+    // Only auto-play if the Listen tab is currently visible
+    if (document.getElementById('panel-listen').classList.contains('active')) {
+      setTimeout(() => speak(q.word.term), 300);
+    }
     document.getElementById('listen-play').addEventListener('click', () => speak(q.word.term));
     area.querySelectorAll('.quiz-opt').forEach(opt => {
       opt.addEventListener('click', () => answer(opt, q));
