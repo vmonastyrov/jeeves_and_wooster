@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exercises — Jeeves &amp; Wooster S01E02</title>
+<style>
+:root {
+  --bg: #fafaf7; --accent: #2d2d6b; --accent-light: #e8e8f4;
+  --green: #16a34a; --green-light: #dcfce7; --red: #dc2626; --red-light: #fee2e2;
+  --orange: #d97706; --orange-light: #fef3c7;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: #1a1a1a; line-height: 1.6; }
+.container { max-width: 800px; margin: 0 auto; padding: 20px; }
+nav { font-size: 0.85em; margin-bottom: 12px; }
+nav a { color: var(--accent); text-decoration: none; }
+nav a:hover { text-decoration: underline; }
+header { text-align: center; border-bottom: 2px solid var(--accent); padding-bottom: 16px; margin-bottom: 24px; }
+header h1 { color: var(--accent); font-size: 1.8em; }
+header p { color: #666; font-size: 0.95em; }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; margin-bottom: 24px; flex-wrap: wrap; }
+.tab {
+  padding: 10px 20px; border: 2px solid #ddd; border-radius: 10px 10px 0 0;
+  background: #fff; cursor: pointer; font-weight: 600; font-size: 0.9em;
+  transition: all 0.2s; color: #666;
+}
+.tab:hover { border-color: var(--accent); color: var(--accent); }
+.tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* Shared */
+.card {
+  background: #fff; border: 1px solid #e0e0e0; border-radius: 12px;
+  padding: 24px; margin-bottom: 16px; transition: box-shadow 0.2s;
+}
+.card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.progress-bar { height: 6px; background: #e5e5e5; border-radius: 3px; margin-bottom: 20px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s; }
+.score-display { text-align: center; font-size: 0.9em; color: #666; margin-bottom: 12px; }
+.btn {
+  display: inline-block; padding: 10px 24px; border: none; border-radius: 8px;
+  font-size: 0.95em; font-weight: 600; cursor: pointer; transition: all 0.15s;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { opacity: 0.9; }
+.btn-outline { background: #fff; border: 2px solid var(--accent); color: var(--accent); }
+.btn-outline:hover { background: var(--accent-light); }
+.btn-sm { padding: 6px 16px; font-size: 0.85em; }
+
+/* Quiz */
+.quiz-question { font-size: 1.05em; margin-bottom: 6px; }
+.quiz-context { font-style: italic; color: #888; font-size: 0.85em; margin-bottom: 14px; }
+.quiz-options { display: flex; flex-direction: column; gap: 8px; }
+.quiz-opt {
+  padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px;
+  cursor: pointer; transition: all 0.15s; font-size: 0.95em; background: #fff;
+}
+.quiz-opt:hover:not(.disabled) { border-color: var(--accent); background: var(--accent-light); }
+.quiz-opt.correct { border-color: var(--green); background: var(--green-light); }
+.quiz-opt.wrong { border-color: var(--red); background: var(--red-light); }
+.quiz-opt.disabled { cursor: default; opacity: 0.7; }
+.quiz-opt.disabled.show-correct { border-color: var(--green); background: var(--green-light); opacity: 1; }
+.quiz-feedback { margin-top: 12px; padding: 10px 14px; border-radius: 8px; font-size: 0.9em; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: #166534; }
+.quiz-feedback.wrong { background: var(--red-light); color: #991b1b; }
+
+/* Fill in blank */
+.fill-sentence { font-size: 1.1em; margin-bottom: 14px; line-height: 1.8; }
+.fill-blank {
+  display: inline-block; border-bottom: 2px solid var(--accent); min-width: 120px;
+  text-align: center; font-weight: 700; color: var(--accent); padding: 0 4px;
+}
+.fill-input-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.fill-input {
+  flex: 1; min-width: 180px; padding: 10px 14px; border: 2px solid #ddd; border-radius: 8px;
+  font-size: 1em; outline: none; transition: border-color 0.2s;
+}
+.fill-input:focus { border-color: var(--accent); }
+.fill-input.correct { border-color: var(--green); background: var(--green-light); }
+.fill-input.wrong { border-color: var(--red); background: var(--red-light); }
+.fill-hint { font-size: 0.8em; color: #999; margin-top: 6px; }
+.fill-answer { margin-top: 8px; font-size: 0.9em; display: none; }
+.fill-answer.show { display: block; }
+
+/* Flashcards */
+.flashcard-container { perspective: 1000px; margin: 0 auto 20px; max-width: 500px; }
+.flashcard {
+  width: 100%; min-height: 220px; position: relative; cursor: pointer;
+  transform-style: preserve-3d; transition: transform 0.5s;
+}
+.flashcard.flipped { transform: rotateY(180deg); }
+.flashcard-face {
+  position: absolute; width: 100%; min-height: 220px; backface-visibility: hidden;
+  border-radius: 16px; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 30px; text-align: center;
+}
+.flashcard-front {
+  background: linear-gradient(135deg, #2d2d6b, #4a4aaa); color: #fff;
+}
+.flashcard-back {
+  background: #fff; border: 2px solid var(--accent); transform: rotateY(180deg);
+}
+.flashcard-word { font-size: 1.6em; font-weight: 700; margin-bottom: 8px; }
+.flashcard-tag { font-size: 0.75em; padding: 3px 12px; border-radius: 10px; background: rgba(255,255,255,0.2); margin-bottom: 8px; }
+.flashcard-back .flashcard-tag { background: var(--accent-light); color: var(--accent); }
+.flashcard-meaning { font-size: 1em; line-height: 1.5; }
+.flashcard-quote { font-style: italic; color: rgba(255,255,255,0.7); font-size: 0.85em; margin-top: 10px; }
+.flashcard-back .flashcard-quote { color: #999; }
+.flashcard-hint { font-size: 0.8em; color: rgba(255,255,255,0.5); margin-top: 12px; }
+.flashcard-nav { display: flex; gap: 12px; justify-content: center; align-items: center; margin-top: 16px; flex-wrap: wrap; }
+.flashcard-counter { font-size: 0.9em; color: #888; min-width: 80px; text-align: center; }
+.flashcard-know-btns { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+.btn-know { background: var(--green); color: #fff; }
+.btn-dont-know { background: var(--orange); color: #fff; }
+
+/* Match */
+.match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 600px) { .match-grid { grid-template-columns: 1fr; } }
+.match-item {
+  padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px;
+  cursor: pointer; transition: all 0.15s; font-size: 0.9em; text-align: center;
+  background: #fff; user-select: none;
+}
+.match-item:hover:not(.matched):not(.disabled) { border-color: var(--accent); background: var(--accent-light); }
+.match-item.selected { border-color: var(--accent); background: var(--accent-light); font-weight: 700; }
+.match-item.matched { border-color: var(--green); background: var(--green-light); opacity: 0.6; cursor: default; }
+.match-item.wrong-flash { border-color: var(--red); background: var(--red-light); }
+.match-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.match-col-title { font-weight: 700; color: var(--accent); font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; text-align: center; }
+
+/* Results */
+.results-card { text-align: center; padding: 40px; }
+.results-score { font-size: 3em; font-weight: 800; color: var(--accent); }
+.results-label { font-size: 1.1em; color: #666; margin-bottom: 20px; }
+.results-bar { height: 12px; background: #e5e5e5; border-radius: 6px; max-width: 300px; margin: 0 auto 20px; overflow: hidden; }
+.results-bar-fill { height: 100%; border-radius: 6px; transition: width 0.5s; }
+.results-bar-fill.great { background: var(--green); }
+.results-bar-fill.ok { background: var(--orange); }
+.results-bar-fill.poor { background: var(--red); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<nav><a href="./">&larr; Back to S1E02</a></nav>
+
+<header>
+  <h1>Exercises</h1>
+  <p>S1E02 "Bertie is in Love" &mdash; Practice vocabulary</p>
+</header>
+
+<div class="tabs">
+  <div class="tab active" data-tab="quiz">Multiple Choice</div>
+  <div class="tab" data-tab="fill">Fill the Gap</div>
+  <div class="tab" data-tab="match">Match Pairs</div>
+  <div class="tab" data-tab="flash">Flashcards</div>
+</div>
+
+<!-- QUIZ PANEL -->
+<div class="panel active" id="panel-quiz">
+  <div class="score-display" id="quiz-score">Question 1 / 10</div>
+  <div class="progress-bar"><div class="progress-fill" id="quiz-progress"></div></div>
+  <div id="quiz-area"></div>
+</div>
+
+<!-- FILL PANEL -->
+<div class="panel" id="panel-fill">
+  <div class="score-display" id="fill-score">Question 1 / 10</div>
+  <div class="progress-bar"><div class="progress-fill" id="fill-progress"></div></div>
+  <div id="fill-area"></div>
+</div>
+
+<!-- MATCH PANEL -->
+<div class="panel" id="panel-match">
+  <div class="score-display" id="match-score">Match the words with their meanings</div>
+  <div id="match-area"></div>
+</div>
+
+<!-- FLASH PANEL -->
+<div class="panel" id="panel-flash">
+  <div class="score-display" id="flash-score">Click the card to flip it</div>
+  <div id="flash-area"></div>
+</div>
+
+</div>
+
+<script>
+// ============ WORD DATA ============
+const ALL_WORDS = [
+  // FORMAL
+  {term:"distressingly",tag:"formal",quote:"Distressingly wilful, sir.",meaning:"In a way that causes worry or sadness."},
+  {term:"wilful",tag:"formal",quote:"Distressingly wilful, sir.",meaning:"Doing what you want even when told not to. Stubborn on purpose."},
+  {term:"garments",tag:"formal",quote:"Are you going to appear in public in those garments?",meaning:"Clothes. A very formal word for things you wear."},
+  {term:"comparable attire",tag:"formal",quote:"...often appears in comparable attire.",meaning:"Similar-looking clothes. Very formal."},
+  {term:"desirous of",tag:"formal",quote:"Why are you so desirous of impressing Miss Wickham?",meaning:"Wanting something very much. Very formal way to say 'wanting to'."},
+  {term:"espieglerie",tag:"formal",quote:"It is that very quality of espieglerie...",meaning:"A French word meaning playful tricks, mischief."},
+  {term:"debars",tag:"formal",quote:"...which debars Miss Wickham from being a prospect.",meaning:"Prevents or stops someone from doing something."},
+  {term:"matrimonial prospect",tag:"formal",quote:"...a matrimonial prospect for a gentleman.",meaning:"A possible person to marry. 'Matrimonial' = related to marriage."},
+  {term:"frivolous",tag:"formal",quote:"Miss Wickham is too frivolous.",meaning:"Not serious, caring only about fun."},
+  {term:"volatile",tag:"formal",quote:"Miss Wickham was frivolous, volatile...",meaning:"Changing quickly and without warning. Unpredictable."},
+  {term:"sufficient assiduity",tag:"formal",quote:"...not keeping our eye on the ball with sufficient assiduity.",meaning:"Enough careful attention. Not concentrating hard enough."},
+  {term:"concatenation of circumstance",tag:"formal",quote:"The concatenation of circumstance was not entirely unforeseen.",meaning:"A chain of events, one thing leading to another."},
+  {term:"privily",tag:"formal",quote:"They would sneak privily into the cubicle.",meaning:"Secretly, in a hidden way. Old-fashioned for 'secretly'."},
+  {term:"the party of the second part",tag:"formal",quote:"...the party of the second part's cubicle.",meaning:"Legal language meaning 'the other person'."},
+  {term:"remonstrate",tag:"formal",quote:"I shall have to go and remonstrate with her.",meaning:"To complain to someone formally about something they've done."},
+  {term:"comestibles",tag:"formal",quote:"I shall go and purchase the comestibles.",meaning:"Food and drink. A very formal and humorous word."},
+  {term:"ingratiate herself",tag:"formal",quote:"In order to ingratiate herself to the boy's father...",meaning:"To make someone like you by doing nice things, often to get something."},
+  {term:"eccentric",tag:"formal",quote:"Mr Wooster is an eccentric.",meaning:"A person who behaves in strange or unusual ways."},
+  {term:"devotee",tag:"formal",quote:"I did not know you were a devotee of the opera.",meaning:"A big fan, someone who loves something very much."},
+  {term:"cease to entertain affection",tag:"formal",quote:"She would cease to entertain affection for him.",meaning:"Stop loving someone. Very formal."},
+  {term:"appearing to disadvantage",tag:"formal",quote:"...witness Mr Glossop appearing to disadvantage.",meaning:"Looking bad, making a fool of yourself in public."},
+  {term:"enthusiastically partisan",tag:"formal",quote:"Not a large gathering, but enthusiastically partisan.",meaning:"Strongly opinionated. Jeeves is being ironic about the noisy crowd."},
+  {term:"the commencement",tag:"formal",quote:"I've been present since the commencement.",meaning:"The beginning, the start. Very formal."},
+  {term:"accosting",tag:"formal",quote:"I took the liberty of accosting Miss Bellinger.",meaning:"Approaching someone and speaking to them unexpectedly."},
+  {term:"practical pleasantry",tag:"formal",quote:"She supposed she had been the victim of a practical pleasantry.",meaning:"A practical joke. A polite way to say 'trick'."},
+  {term:"a wrench",tag:"formal",quote:"It will be a wrench at first.",meaning:"A painful feeling when you give up something you like."},
+
+  // SLANG
+  {term:"what ho",tag:"slang",quote:"What ho, Bobbie, Barmy!",meaning:"Hello! Very old-fashioned British upper-class greeting."},
+  {term:"vivid",tag:"slang",quote:"What, a bit vivid, do you think?",meaning:"Here: too bright, too colourful."},
+  {term:"natty",tag:"slang",quote:"Yes, rather natty, eh?",meaning:"Smart-looking, stylish. Old-fashioned for 'looking good'."},
+  {term:"hidebound",tag:"slang",quote:"He's notoriously hidebound over leg-wear.",meaning:"Too traditional, unwilling to accept new ideas."},
+  {term:"dashed",tag:"slang",quote:"Mm, dashed awkward!",meaning:"A polite version of 'damned'. Used for emphasis: 'very' or 'really'."},
+  {term:"bally",tag:"slang",quote:"Well, of all the bally nerve!",meaning:"A polite replacement for 'bloody'. Used for emphasis."},
+  {term:"dratted",tag:"slang",quote:"...your mother's dratted play.",meaning:"Annoying, unwanted. A mild, polite way to swear."},
+  {term:"blasted",tag:"slang",quote:"It's the blasted dog!",meaning:"Annoying, terrible. A mild British swear word."},
+  {term:"steady the buffs",tag:"slang",quote:"Oh, steady the buffs!",meaning:"Calm down! Wait a moment! Old military expression."},
+  {term:"righto",tag:"slang",quote:"Oh, righto.",meaning:"All right, OK. Casual upper-class British agreement."},
+  {term:"topping",tag:"slang",quote:"Topping show!",meaning:"Excellent, wonderful. Old-fashioned for 'great'."},
+  {term:"a stick",tag:"slang",quote:"Don't be such a stick, Bertie.",meaning:"A boring, serious person who won't join in the fun."},
+  {term:"by Jove",tag:"slang",quote:"By Jove! You mean, if he gets the bird...",meaning:"An exclamation like 'Oh my God!' or 'Wow!'"},
+  {term:"jolly well",tag:"slang",quote:"I jolly well am!",meaning:"Definitely, absolutely. Used for strong emphasis."},
+  {term:"Great Scott",tag:"slang",quote:"Well, Great Scott, Jeeves!",meaning:"Old-fashioned exclamation of surprise."},
+  {term:"chilled steel",tag:"slang",quote:"I can be chilled steel, you know.",meaning:"Very cold and firm, impossible to persuade."},
+  {term:"I'll say",tag:"slang",quote:"Looking forward to the match? \u2014 I'll say!",meaning:"Yes, definitely! Strong enthusiastic agreement."},
+
+  // IDIOMS
+  {term:"done ourselves a goose",tag:"idiom",quote:"Think of the goose we've done ourselves.",meaning:"Done ourselves a favour, gained an advantage."},
+  {term:"making tracks",tag:"idiom",quote:"We must be making tracks.",meaning:"Leaving, going somewhere. Time to go."},
+  {term:"a walkover",tag:"idiom",quote:"...the golfing equivalent of a walkover.",meaning:"A very easy victory, no real competition."},
+  {term:"condemned out of your own mouth",tag:"idiom",quote:"Condemned out of your own mouth.",meaning:"Your own words accidentally proved my point."},
+  {term:"made a dog's breakfast of",tag:"idiom",quote:"You made a dog's breakfast of your golf.",meaning:"Made a complete mess of something."},
+  {term:"an absolute scream",tag:"idiom",quote:"He was an absolute scream!",meaning:"Very funny, hilarious."},
+  {term:"getting back at",tag:"idiom",quote:"...for getting back at young Barmy.",meaning:"Taking revenge on someone."},
+  {term:"at dead of night",tag:"idiom",quote:"At dead of night, they would sneak privily...",meaning:"In the middle of the night, very late."},
+  {term:"slip one over",tag:"idiom",quote:"...necessary to slip one over certain of the baser sort.",meaning:"To trick someone, to fool them."},
+  {term:"cold-bloodedly",tag:"idiom",quote:"You cold-bloodedly stood by...",meaning:"Without caring, without emotion. Cruelly."},
+  {term:"lend colour to",tag:"idiom",quote:"The occurrence may lend colour to the view...",meaning:"To support an idea, make something seem more likely true."},
+  {term:"all the rage",tag:"idiom",quote:"It's all the rage at the Drones.",meaning:"Very popular, very fashionable right now."},
+  {term:"of all the nerve",tag:"idiom",quote:"Well, of all the bally nerve!",meaning:"How dare she! What cheek!"},
+  {term:"banks on his verdict",tag:"idiom",quote:"Mr Blumenfield always banks on his verdict.",meaning:"Relies on, trusts completely."},
+  {term:"dropped like a hot brick",tag:"idiom",quote:"He's dropped Angela like a hot brick.",meaning:"Suddenly stopped a relationship, abandoned quickly."},
+  {term:"child's play",tag:"idiom",quote:"This should be child's play to Jeeves.",meaning:"Something very easy to do."},
+  {term:"gets the bird",tag:"idiom",quote:"If he gets the bird, all will be off.",meaning:"To be booed by an audience, rejected publicly."},
+  {term:"like a breeze",tag:"idiom",quote:"Like a breeze, Jeeves, like a breeze!",meaning:"Very easily, without any problems."},
+  {term:"the sporting spirit",tag:"idiom",quote:"One wonders if this is quite the sporting spirit.",meaning:"Being fair and honest in competition."},
+  {term:"love is dead",tag:"idiom",quote:"Say no more, Jeeves. Love is dead.",meaning:"The romantic feelings are completely gone."},
+  {term:"feed out of the same bucket",tag:"idiom",quote:"...they should feed for life out of the same bucket.",meaning:"Get married and live together. Humorous."},
+  {term:"the surgeon's knife",tag:"idiom",quote:"The surgeon's knife, eh, Jeeves?",meaning:"A clean, precise action that solves a problem completely."},
+
+  // ARCHAIC
+  {term:"thee / thy",tag:"archaic",quote:"Because God made thee mine, I'll cherish thee.",meaning:"Old English for 'you' and 'your'. Used in poetry and songs."},
+  {term:"naught save",tag:"archaic",quote:"You come to me with naught save love.",meaning:"'Naught' = nothing. 'Save' = except. Very poetic."},
+  {term:"cherish",tag:"archaic",quote:"I'll cherish thee through light and darkness.",meaning:"To love and protect someone, treat them as very special."},
+  {term:"cur",tag:"archaic",quote:"You cur!",meaning:"An old insult: a worthless, cowardly person."},
+  {term:"forsake",tag:"archaic",quote:"Friends may forsake me.",meaning:"To leave someone who needs you, abandon them."},
+
+  // VOCAB
+  {term:"tee off",tag:"vocab",quote:"I tee off at 11.30.",meaning:"To start a round of golf by hitting the first ball."},
+  {term:"a walkover",tag:"vocab",quote:"The golfing equivalent of a walkover.",meaning:"An easy win with no real competition."},
+  {term:"exploits",tag:"vocab",quote:"...amazed at my exploits on the golf course.",meaning:"Brave or impressive actions, adventures."},
+  {term:"gadget",tag:"vocab",quote:"I've got this wonderful new gadget.",meaning:"A small clever device or tool."},
+  {term:"finesse",tag:"vocab",quote:"It's finesse, you know.",meaning:"Skill and cleverness in handling something difficult."},
+  {term:"backspin",tag:"vocab",quote:"Let it drift onto the green with backspin.",meaning:"When a golf ball spins backward and stops quickly."},
+  {term:"dogleg",tag:"vocab",quote:"Then dogleg it round the wood.",meaning:"A golf hole or shot that bends left or right."},
+  {term:"quail high",tag:"vocab",quote:"Drill it straight out, quail high.",meaning:"Golf slang: a low, fast shot (height of a flying quail bird)."},
+  {term:"darning needle",tag:"vocab",quote:"They used to attach a darning needle.",meaning:"A large thick needle for repairing holes in socks."},
+  {term:"helpmeet",tag:"vocab",quote:"...my idea of a helpmeet.",meaning:"A helpful partner, especially a wife. Old-fashioned."},
+  {term:"wheeze",tag:"vocab",quote:"Anyone who can think up a wheeze like that...",meaning:"A clever idea or trick. British slang for a cunning plan."},
+  {term:"aniseed",tag:"vocab",quote:"Our first requirement is for aniseed.",meaning:"Seeds with a strong sweet smell. Dogs are attracted to it."},
+  {term:"dognapping",tag:"vocab",quote:"Aniseed is used in the dognapping industry.",meaning:"Stealing dogs. Like kidnapping but for dogs."},
+  {term:"hound's tooth check",tag:"vocab",quote:"Shall I lay out our hound's tooth check suit?",meaning:"A fabric pattern that looks like small broken squares."},
+  {term:"plus sixes",tag:"vocab",quote:"Those plus sixes, Jeeves. Get rid of them.",meaning:"Wide, baggy trousers ending below the knee. Worn for golf."},
+  {term:"baritone",tag:"vocab",quote:"Mr Wooster has a pleasant light baritone.",meaning:"A male singing voice between tenor (high) and bass (low)."},
+  {term:"soprano",tag:"vocab",quote:"Miss Bellinger, the well-known operatic soprano.",meaning:"The highest female singing voice."},
+  {term:"infatuated",tag:"vocab",quote:"He's infatuated with some singer.",meaning:"Having very strong short-lived feelings of love. A crush."},
+  {term:"devilish ingenuity",tag:"vocab",quote:"Mark my devilish ingenuity, Bertie.",meaning:"Extremely clever and creative thinking."},
+  {term:"cribbage",tag:"vocab",quote:"Cocoa and cribbage in the reading room.",meaning:"A card game played by two people with a scoring board."},
+  {term:"gall",tag:"vocab",quote:"I don't see how you have the gall...",meaning:"Rude courage, nerve. Confidence to do something rude."},
+  {term:"roly-poly pudding",tag:"vocab",quote:"Roly-poly pudding with jam.",meaning:"A traditional British dessert: rolled pastry filled with jam."},
+  {term:"took a fancy to",tag:"vocab",quote:"The child took a fancy to the animal.",meaning:"Started to like something very much."},
+  {term:"blundered grievously",tag:"vocab",quote:"Jeeves, you have blundered grievously.",meaning:"Made a terrible mistake. 'Grievously' = very badly."},
+];
+
+// Deduplicate
+const seen = new Set();
+const WORDS = ALL_WORDS.filter(w => {
+  const k = w.term.toLowerCase();
+  if (seen.has(k)) return false;
+  seen.add(k);
+  return true;
+});
+
+// ============ UTILITIES ============
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function pick(arr, n, exclude) {
+  const filtered = exclude ? arr.filter(x => x !== exclude) : [...arr];
+  return shuffle(filtered).slice(0, n);
+}
+
+// ============ TABS ============
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ============ QUIZ (Multiple Choice) ============
+(function() {
+  const TOTAL = 15;
+  const area = document.getElementById('quiz-area');
+  const scoreEl = document.getElementById('quiz-score');
+  const progressEl = document.getElementById('quiz-progress');
+  let questions, current, correct;
+
+  function init() {
+    const pool = shuffle(WORDS);
+    questions = pool.slice(0, TOTAL).map(w => {
+      const wrong = pick(WORDS, 3, w).map(x => x.meaning);
+      const options = shuffle([w.meaning, ...wrong]);
+      return { word: w, options, answer: w.meaning };
+    });
+    current = 0; correct = 0;
+    render();
+  }
+
+  function render() {
+    if (current >= questions.length) { showResults(); return; }
+    const q = questions[current];
+    scoreEl.textContent = `Question ${current + 1} / ${questions.length}`;
+    progressEl.style.width = ((current / questions.length) * 100) + '%';
+    area.innerHTML = `
+      <div class="card">
+        <div class="quiz-question">What does <strong>"${q.word.term}"</strong> mean?</div>
+        <div class="quiz-context">"${q.word.quote}"</div>
+        <div class="quiz-options">${q.options.map((o, i) =>
+          `<div class="quiz-opt" data-idx="${i}">${o}</div>`
+        ).join('')}</div>
+        <div class="quiz-feedback" id="quiz-fb"></div>
+        <div style="margin-top:14px;text-align:right;display:none;" id="quiz-next">
+          <button class="btn btn-primary btn-sm" id="quiz-next-btn">Next &rarr;</button>
+        </div>
+      </div>`;
+    area.querySelectorAll('.quiz-opt').forEach(opt => {
+      opt.addEventListener('click', () => answer(opt, q));
+    });
+  }
+
+  function answer(opt, q) {
+    if (opt.classList.contains('disabled')) return;
+    const chosen = opt.textContent;
+    const fb = document.getElementById('quiz-fb');
+    area.querySelectorAll('.quiz-opt').forEach(o => {
+      o.classList.add('disabled');
+      if (o.textContent === q.answer) o.classList.add('show-correct');
+    });
+    if (chosen === q.answer) {
+      opt.classList.add('correct');
+      fb.className = 'quiz-feedback show correct';
+      fb.textContent = 'Correct!';
+      correct++;
+    } else {
+      opt.classList.add('wrong');
+      fb.className = 'quiz-feedback show wrong';
+      fb.textContent = `Wrong. The answer is: "${q.answer}"`;
+    }
+    const next = document.getElementById('quiz-next');
+    next.style.display = 'block';
+    document.getElementById('quiz-next-btn').addEventListener('click', () => { current++; render(); });
+  }
+
+  function showResults() {
+    const pct = Math.round((correct / questions.length) * 100);
+    const cls = pct >= 80 ? 'great' : pct >= 50 ? 'ok' : 'poor';
+    progressEl.style.width = '100%';
+    scoreEl.textContent = 'Quiz Complete!';
+    area.innerHTML = `
+      <div class="card results-card">
+        <div class="results-score">${correct}/${questions.length}</div>
+        <div class="results-label">${pct}% correct</div>
+        <div class="results-bar"><div class="results-bar-fill ${cls}" style="width:${pct}%"></div></div>
+        <button class="btn btn-primary" onclick="location.reload()">Try Again</button>
+      </div>`;
+  }
+
+  init();
+})();
+
+// ============ FILL IN THE GAP ============
+(function() {
+  const TOTAL = 10;
+  const area = document.getElementById('fill-area');
+  const scoreEl = document.getElementById('fill-score');
+  const progressEl = document.getElementById('fill-progress');
+  let questions, current, correct;
+
+  function init() {
+    const pool = shuffle(WORDS.filter(w => w.quote.toLowerCase().includes(w.term.toLowerCase().split(' ')[0])));
+    questions = pool.slice(0, TOTAL).map(w => {
+      const mainWord = w.term.split(' ')[0];
+      const regex = new RegExp(mainWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      const blanked = w.quote.replace(regex, '______');
+      return { word: w, blanked, answer: mainWord.toLowerCase() };
+    });
+    current = 0; correct = 0;
+    render();
+  }
+
+  function render() {
+    if (current >= questions.length) { showResults(); return; }
+    const q = questions[current];
+    scoreEl.textContent = `Question ${current + 1} / ${questions.length}`;
+    progressEl.style.width = ((current / questions.length) * 100) + '%';
+    area.innerHTML = `
+      <div class="card">
+        <div style="font-size:0.8em;color:#999;margin-bottom:4px;">Complete the quote from the episode:</div>
+        <div class="fill-sentence">"${q.blanked}"</div>
+        <div class="fill-hint">Meaning: ${q.word.meaning}</div>
+        <div class="fill-input-row" style="margin-top:12px;">
+          <input type="text" class="fill-input" id="fill-inp" placeholder="Type the missing word..." autocomplete="off">
+          <button class="btn btn-primary btn-sm" id="fill-check">Check</button>
+        </div>
+        <div class="fill-answer" id="fill-ans"></div>
+        <div style="margin-top:14px;text-align:right;display:none;" id="fill-next">
+          <button class="btn btn-primary btn-sm" id="fill-next-btn">Next &rarr;</button>
+        </div>
+      </div>`;
+    const inp = document.getElementById('fill-inp');
+    const checkBtn = document.getElementById('fill-check');
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') checkBtn.click(); });
+    inp.focus();
+    checkBtn.addEventListener('click', () => checkAnswer(q));
+  }
+
+  function checkAnswer(q) {
+    const inp = document.getElementById('fill-inp');
+    const ans = document.getElementById('fill-ans');
+    const val = inp.value.trim().toLowerCase();
+    if (!val) return;
+    inp.disabled = true;
+    document.getElementById('fill-check').disabled = true;
+    if (val === q.answer || val === q.word.term.toLowerCase()) {
+      inp.classList.add('correct');
+      ans.className = 'fill-answer show';
+      ans.innerHTML = `<span style="color:var(--green);font-weight:700;">Correct!</span> The word is <strong>${q.word.term}</strong>.`;
+      correct++;
+    } else {
+      inp.classList.add('wrong');
+      ans.className = 'fill-answer show';
+      ans.innerHTML = `<span style="color:var(--red);font-weight:700;">Not quite.</span> The answer is <strong>${q.word.term}</strong>.`;
+    }
+    document.getElementById('fill-next').style.display = 'block';
+    document.getElementById('fill-next-btn').addEventListener('click', () => { current++; render(); });
+  }
+
+  function showResults() {
+    const pct = Math.round((correct / questions.length) * 100);
+    const cls = pct >= 80 ? 'great' : pct >= 50 ? 'ok' : 'poor';
+    progressEl.style.width = '100%';
+    scoreEl.textContent = 'Exercise Complete!';
+    area.innerHTML = `
+      <div class="card results-card">
+        <div class="results-score">${correct}/${questions.length}</div>
+        <div class="results-label">${pct}% correct</div>
+        <div class="results-bar"><div class="results-bar-fill ${cls}" style="width:${pct}%"></div></div>
+        <button class="btn btn-primary" onclick="location.reload()">Try Again</button>
+      </div>`;
+  }
+
+  init();
+})();
+
+// ============ MATCH PAIRS ============
+(function() {
+  const PAIRS = 6;
+  const area = document.getElementById('match-area');
+  const scoreEl = document.getElementById('match-score');
+  let selected = null, matched = 0, attempts = 0;
+
+  function init() {
+    const pool = shuffle(WORDS).slice(0, PAIRS);
+    const leftItems = shuffle(pool.map((w, i) => ({ id: i, text: w.term, type: 'term' })));
+    const rightItems = shuffle(pool.map((w, i) => ({ id: i, text: w.meaning, type: 'meaning' })));
+    matched = 0; attempts = 0; selected = null;
+    scoreEl.textContent = `Match the words with their meanings (${PAIRS} pairs)`;
+
+    area.innerHTML = `
+      <div class="match-cols">
+        <div>
+          <div class="match-col-title">Word</div>
+          ${leftItems.map(item => `<div class="match-item" data-id="${item.id}" data-type="term" style="margin-bottom:8px;">${item.text}</div>`).join('')}
+        </div>
+        <div>
+          <div class="match-col-title">Meaning</div>
+          ${rightItems.map(item => `<div class="match-item" data-id="${item.id}" data-type="meaning" style="margin-bottom:8px;font-size:0.82em;">${item.text}</div>`).join('')}
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:16px;">
+        <button class="btn btn-outline btn-sm" id="match-restart">New Round</button>
+      </div>`;
+
+    area.querySelectorAll('.match-item').forEach(item => {
+      item.addEventListener('click', () => handleClick(item));
+    });
+    document.getElementById('match-restart').addEventListener('click', init);
+  }
+
+  function handleClick(item) {
+    if (item.classList.contains('matched')) return;
+    if (selected && selected.dataset.type === item.dataset.type) {
+      selected.classList.remove('selected');
+      selected = item;
+      item.classList.add('selected');
+      return;
+    }
+    if (!selected) {
+      selected = item;
+      item.classList.add('selected');
+      return;
+    }
+    attempts++;
+    if (selected.dataset.id === item.dataset.id) {
+      selected.classList.remove('selected');
+      selected.classList.add('matched');
+      item.classList.add('matched');
+      matched++;
+      selected = null;
+      if (matched === PAIRS) {
+        scoreEl.textContent = `All matched! (${attempts} attempts for ${PAIRS} pairs)`;
+      } else {
+        scoreEl.textContent = `${matched}/${PAIRS} matched`;
+      }
+    } else {
+      item.classList.add('wrong-flash');
+      selected.classList.add('wrong-flash');
+      const s = selected;
+      setTimeout(() => {
+        item.classList.remove('wrong-flash');
+        s.classList.remove('wrong-flash');
+        s.classList.remove('selected');
+      }, 500);
+      selected = null;
+    }
+  }
+
+  init();
+})();
+
+// ============ FLASHCARDS ============
+(function() {
+  const area = document.getElementById('flash-area');
+  const scoreEl = document.getElementById('flash-score');
+  let deck, idx, known, unknown;
+
+  function init() {
+    deck = shuffle(WORDS); idx = 0; known = 0; unknown = 0;
+    render();
+  }
+
+  function render() {
+    if (idx >= deck.length) { showSummary(); return; }
+    const w = deck[idx];
+    scoreEl.textContent = `Card ${idx + 1} / ${deck.length} \u2022 Know: ${known} \u2022 Learning: ${unknown}`;
+    area.innerHTML = `
+      <div class="flashcard-container">
+        <div class="flashcard" id="fc">
+          <div class="flashcard-face flashcard-front">
+            <div class="flashcard-tag">${w.tag}</div>
+            <div class="flashcard-word">${w.term}</div>
+            <div class="flashcard-quote">"${w.quote}"</div>
+            <div class="flashcard-hint">click to flip</div>
+          </div>
+          <div class="flashcard-face flashcard-back">
+            <div class="flashcard-tag">${w.tag}</div>
+            <div class="flashcard-word">${w.term}</div>
+            <div class="flashcard-meaning">${w.meaning}</div>
+          </div>
+        </div>
+      </div>
+      <div class="flashcard-know-btns">
+        <button class="btn btn-sm btn-dont-know" id="fc-no">Still learning</button>
+        <button class="btn btn-sm btn-know" id="fc-yes">I know this</button>
+      </div>
+      <div class="flashcard-nav">
+        <button class="btn btn-outline btn-sm" id="fc-restart">Restart</button>
+        <span class="flashcard-counter">${idx + 1} / ${deck.length}</span>
+      </div>`;
+    document.getElementById('fc').addEventListener('click', () => {
+      document.getElementById('fc').classList.toggle('flipped');
+    });
+    document.getElementById('fc-yes').addEventListener('click', () => { known++; idx++; render(); });
+    document.getElementById('fc-no').addEventListener('click', () => { unknown++; idx++; render(); });
+    document.getElementById('fc-restart').addEventListener('click', init);
+  }
+
+  function showSummary() {
+    scoreEl.textContent = 'Flashcards Complete!';
+    area.innerHTML = `
+      <div class="card results-card">
+        <div class="results-score">${known}/${deck.length}</div>
+        <div class="results-label">words you know</div>
+        <div style="margin-top:8px;color:#888;">${unknown} still learning</div>
+        <div style="margin-top:20px;">
+          <button class="btn btn-primary" id="fc-again">Go Again</button>
+        </div>
+      </div>`;
+    document.getElementById('fc-again').addEventListener('click', init);
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
