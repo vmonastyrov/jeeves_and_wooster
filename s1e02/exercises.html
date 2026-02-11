@@ -21,11 +21,11 @@ header h1 { color: var(--accent); font-size: 1.8em; }
 header p { color: #666; font-size: 0.95em; }
 
 /* Tabs */
-.tabs { display: flex; gap: 4px; margin-bottom: 24px; flex-wrap: wrap; }
+.tabs { display: flex; gap: 4px; margin-bottom: 24px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .tab {
-  padding: 10px 20px; border: 2px solid #ddd; border-radius: 10px 10px 0 0;
-  background: #fff; cursor: pointer; font-weight: 600; font-size: 0.9em;
-  transition: all 0.2s; color: #666;
+  padding: 10px 14px; border: 2px solid #ddd; border-radius: 10px 10px 0 0;
+  background: #fff; cursor: pointer; font-weight: 600; font-size: 0.85em;
+  transition: all 0.2s; color: #666; white-space: nowrap; flex-shrink: 0;
 }
 .tab:hover { border-color: var(--accent); color: var(--accent); }
 .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
