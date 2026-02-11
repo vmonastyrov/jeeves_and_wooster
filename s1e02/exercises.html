@@ -146,9 +146,18 @@ header p { color: #666; font-size: 0.95em; }
   display: inline-flex; align-items: center; justify-content: center;
   width: 30px; height: 30px; border: none; border-radius: 50%;
   background: var(--accent-light); color: var(--accent); cursor: pointer;
-  font-size: 1.1em; transition: all 0.15s; flex-shrink: 0; vertical-align: middle;
+  transition: all 0.15s; flex-shrink: 0; vertical-align: middle; padding: 0;
 }
 .speak-btn:hover { background: var(--accent); color: #fff; }
+.speak-btn svg { width: 16px; height: 16px; fill: currentColor; }
+.speak-btn-lg {
+  width: 64px; height: 64px; border-radius: 50%; border: 3px solid var(--accent);
+  background: var(--accent-light); color: var(--accent); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s; margin: 0 auto 16px; padding: 0;
+}
+.speak-btn-lg:hover { background: var(--accent); color: #fff; }
+.speak-btn-lg svg { width: 32px; height: 32px; fill: currentColor; }
 </style>
 </head>
 <body>
@@ -164,6 +173,7 @@ header p { color: #666; font-size: 0.95em; }
 <div class="tabs">
   <div class="tab active" data-tab="quiz">Multiple Choice</div>
   <div class="tab" data-tab="fill">Fill the Gap</div>
+  <div class="tab" data-tab="listen">Listen &amp; Choose</div>
   <div class="tab" data-tab="match">Match Pairs</div>
   <div class="tab" data-tab="flash">Flashcards</div>
 </div>
@@ -180,6 +190,13 @@ header p { color: #666; font-size: 0.95em; }
   <div class="score-display" id="fill-score">Question 1 / 10</div>
   <div class="progress-bar"><div class="progress-fill" id="fill-progress"></div></div>
   <div id="fill-area"></div>
+</div>
+
+<!-- LISTEN PANEL -->
+<div class="panel" id="panel-listen">
+  <div class="score-display" id="listen-score">Question 1 / 10</div>
+  <div class="progress-bar"><div class="progress-fill" id="listen-progress"></div></div>
+  <div id="listen-area"></div>
 </div>
 
 <!-- MATCH PANEL -->
@@ -380,7 +397,7 @@ document.querySelectorAll('.tab').forEach(tab => {
     progressEl.style.width = ((current / questions.length) * 100) + '%';
     area.innerHTML = `
       <div class="card">
-        <div class="quiz-question"><button class="speak-btn" onclick="speak('${q.word.term.replace(/'/g, "\\'")}')">&#128264;</button> What does <strong>"${q.word.term}"</strong> mean?</div>
+        <div class="quiz-question"><button class="speak-btn" onclick="speak('${q.word.term.replace(/'/g, "\\'")}')"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8.3v7.4a4.5 4.5 0 0 0 2.5-3.7zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg></button> What does <strong>"${q.word.term}"</strong> mean?</div>
         <div class="quiz-context">"${q.word.quote}"</div>
         <div class="quiz-options">${q.options.map((o, i) =>
           `<div class="quiz-opt" data-idx="${i}">${o}</div>`
@@ -519,6 +536,91 @@ document.querySelectorAll('.tab').forEach(tab => {
   init();
 })();
 
+// ============ LISTEN & CHOOSE ============
+(function() {
+  const TOTAL = 10;
+  const area = document.getElementById('listen-area');
+  const scoreEl = document.getElementById('listen-score');
+  const progressEl = document.getElementById('listen-progress');
+  const speakerSvg = '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8.3v7.4a4.5 4.5 0 0 0 2.5-3.7zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>';
+  let questions, current, correct;
+
+  function init() {
+    const pool = shuffle(WORDS);
+    questions = pool.slice(0, TOTAL).map(w => {
+      const wrong = pick(WORDS, 3, w).map(x => x.meaning);
+      const options = shuffle([w.meaning, ...wrong]);
+      return { word: w, options, answer: w.meaning };
+    });
+    current = 0; correct = 0;
+    render();
+  }
+
+  function render() {
+    if (current >= questions.length) { showResults(); return; }
+    const q = questions[current];
+    scoreEl.textContent = `Question ${current + 1} / ${questions.length}`;
+    progressEl.style.width = ((current / questions.length) * 100) + '%';
+    area.innerHTML = `
+      <div class="card" style="text-align:center;">
+        <div style="color:#888;font-size:0.85em;margin-bottom:12px;">Listen to the word, then choose its meaning</div>
+        <button class="speak-btn-lg" id="listen-play">${speakerSvg}</button>
+        <div style="color:#aaa;font-size:0.8em;margin-bottom:16px;">Tap to listen again</div>
+        <div class="quiz-options" style="text-align:left;">${q.options.map((o, i) =>
+          `<div class="quiz-opt" data-idx="${i}">${o}</div>`
+        ).join('')}</div>
+        <div class="quiz-feedback" id="listen-fb"></div>
+        <div style="margin-top:14px;text-align:right;display:none;" id="listen-next">
+          <button class="btn btn-primary btn-sm" id="listen-next-btn">Next &rarr;</button>
+        </div>
+      </div>`;
+    // Auto-play on render
+    setTimeout(() => speak(q.word.term), 300);
+    document.getElementById('listen-play').addEventListener('click', () => speak(q.word.term));
+    area.querySelectorAll('.quiz-opt').forEach(opt => {
+      opt.addEventListener('click', () => answer(opt, q));
+    });
+  }
+
+  function answer(opt, q) {
+    if (opt.classList.contains('disabled')) return;
+    const chosen = opt.textContent;
+    const fb = document.getElementById('listen-fb');
+    area.querySelectorAll('.quiz-opt').forEach(o => {
+      o.classList.add('disabled');
+      if (o.textContent === q.answer) o.classList.add('show-correct');
+    });
+    if (chosen === q.answer) {
+      opt.classList.add('correct');
+      fb.className = 'quiz-feedback show correct';
+      fb.innerHTML = `Correct! The word was <strong>"${q.word.term}"</strong>`;
+      correct++;
+    } else {
+      opt.classList.add('wrong');
+      fb.className = 'quiz-feedback show wrong';
+      fb.innerHTML = `Wrong. The word was <strong>"${q.word.term}"</strong> &mdash; "${q.answer}"`;
+    }
+    document.getElementById('listen-next').style.display = 'block';
+    document.getElementById('listen-next-btn').addEventListener('click', () => { current++; render(); });
+  }
+
+  function showResults() {
+    const pct = Math.round((correct / questions.length) * 100);
+    const cls = pct >= 80 ? 'great' : pct >= 50 ? 'ok' : 'poor';
+    progressEl.style.width = '100%';
+    scoreEl.textContent = 'Exercise Complete!';
+    area.innerHTML = `
+      <div class="card results-card">
+        <div class="results-score">${correct}/${questions.length}</div>
+        <div class="results-label">${pct}% correct</div>
+        <div class="results-bar"><div class="results-bar-fill ${cls}" style="width:${pct}%"></div></div>
+        <button class="btn btn-primary" onclick="location.reload()">Try Again</button>
+      </div>`;
+  }
+
+  init();
+})();
+
 // ============ MATCH PAIRS ============
 (function() {
   const PAIRS = 6;
@@ -595,33 +697,65 @@ document.querySelectorAll('.tab').forEach(tab => {
   init();
 })();
 
-// ============ FLASHCARDS ============
+// ============ FLASHCARDS (with localStorage) ============
 (function() {
+  const STORAGE_KEY = 'jw_s1e02_known';
   const area = document.getElementById('flash-area');
   const scoreEl = document.getElementById('flash-score');
-  let deck, idx, known, unknown;
+  const speakerSvg = '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8.3v7.4a4.5 4.5 0 0 0 2.5-3.7zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>';
+  let deck, idx, sessionKnown, sessionUnknown;
 
-  function init() {
-    deck = shuffle(WORDS); idx = 0; known = 0; unknown = 0;
+  function loadKnown() {
+    try { return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')); }
+    catch { return new Set(); }
+  }
+  function saveKnown(knownSet) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...knownSet])); } catch {}
+  }
+  const knownSet = loadKnown();
+
+  function init(onlyUnknown) {
+    if (onlyUnknown) {
+      deck = shuffle(WORDS.filter(w => !knownSet.has(w.term)));
+    } else {
+      deck = shuffle(WORDS);
+    }
+    idx = 0; sessionKnown = 0; sessionUnknown = 0;
+    if (deck.length === 0) {
+      scoreEl.textContent = 'All words learned!';
+      area.innerHTML = `
+        <div class="card results-card">
+          <div class="results-score" style="font-size:2em;">&#127881;</div>
+          <div class="results-label">You've marked all ${WORDS.length} words as known!</div>
+          <div style="margin-top:16px;">
+            <button class="btn btn-outline" id="fc-reset">Reset progress &amp; start over</button>
+          </div>
+        </div>`;
+      document.getElementById('fc-reset').addEventListener('click', () => {
+        knownSet.clear(); saveKnown(knownSet); init(false);
+      });
+      return;
+    }
     render();
   }
 
   function render() {
     if (idx >= deck.length) { showSummary(); return; }
     const w = deck[idx];
-    scoreEl.textContent = `Card ${idx + 1} / ${deck.length} \u2022 Know: ${known} \u2022 Learning: ${unknown}`;
+    const totalKnown = knownSet.size;
+    scoreEl.textContent = `Card ${idx + 1} / ${deck.length} \u2022 Total learned: ${totalKnown}/${WORDS.length}`;
     area.innerHTML = `
       <div class="flashcard-container">
         <div class="flashcard" id="fc">
           <div class="flashcard-face flashcard-front">
             <div class="flashcard-tag">${w.tag}</div>
-            <div class="flashcard-word">${w.term} <button class="speak-btn" onclick="event.stopPropagation();speak('${w.term.replace(/'/g, "\\'")}')" style="background:rgba(255,255,255,0.2);color:#fff;">&#128264;</button></div>
+            <div class="flashcard-word">${w.term} <button class="speak-btn" onclick="event.stopPropagation();speak('${w.term.replace(/'/g, "\\'")}')" style="background:rgba(255,255,255,0.2);color:#fff;">${speakerSvg}</button></div>
             <div class="flashcard-quote">"${w.quote}"</div>
             <div class="flashcard-hint">click to flip</div>
           </div>
           <div class="flashcard-face flashcard-back">
             <div class="flashcard-tag">${w.tag}</div>
-            <div class="flashcard-word">${w.term} <button class="speak-btn" onclick="event.stopPropagation();speak('${w.term.replace(/'/g, "\\'")}')" >&#128264;</button></div>
+            <div class="flashcard-word">${w.term} <button class="speak-btn" onclick="event.stopPropagation();speak('${w.term.replace(/'/g, "\\'")}')">${speakerSvg}</button></div>
             <div class="flashcard-meaning">${w.meaning}</div>
           </div>
         </div>
@@ -631,32 +765,50 @@ document.querySelectorAll('.tab').forEach(tab => {
         <button class="btn btn-sm btn-know" id="fc-yes">I know this</button>
       </div>
       <div class="flashcard-nav">
-        <button class="btn btn-outline btn-sm" id="fc-restart">Restart</button>
+        <button class="btn btn-outline btn-sm" id="fc-all">All words</button>
         <span class="flashcard-counter">${idx + 1} / ${deck.length}</span>
+        <button class="btn btn-outline btn-sm" id="fc-unknown">Only unknown</button>
       </div>`;
     document.getElementById('fc').addEventListener('click', () => {
       document.getElementById('fc').classList.toggle('flipped');
     });
-    document.getElementById('fc-yes').addEventListener('click', () => { known++; idx++; render(); });
-    document.getElementById('fc-no').addEventListener('click', () => { unknown++; idx++; render(); });
-    document.getElementById('fc-restart').addEventListener('click', init);
+    document.getElementById('fc-yes').addEventListener('click', () => {
+      knownSet.add(w.term); saveKnown(knownSet);
+      sessionKnown++; idx++; render();
+    });
+    document.getElementById('fc-no').addEventListener('click', () => {
+      knownSet.delete(w.term); saveKnown(knownSet);
+      sessionUnknown++; idx++; render();
+    });
+    document.getElementById('fc-all').addEventListener('click', () => init(false));
+    document.getElementById('fc-unknown').addEventListener('click', () => init(true));
   }
 
   function showSummary() {
-    scoreEl.textContent = 'Flashcards Complete!';
+    const totalKnown = knownSet.size;
+    const pct = Math.round((totalKnown / WORDS.length) * 100);
+    const cls = pct >= 80 ? 'great' : pct >= 50 ? 'ok' : 'poor';
+    scoreEl.textContent = 'Session Complete!';
     area.innerHTML = `
       <div class="card results-card">
-        <div class="results-score">${known}/${deck.length}</div>
-        <div class="results-label">words you know</div>
-        <div style="margin-top:8px;color:#888;">${unknown} still learning</div>
-        <div style="margin-top:20px;">
-          <button class="btn btn-primary" id="fc-again">Go Again</button>
+        <div class="results-score">${totalKnown}/${WORDS.length}</div>
+        <div class="results-label">total words learned (saved in browser)</div>
+        <div class="results-bar"><div class="results-bar-fill ${cls}" style="width:${pct}%"></div></div>
+        <div style="color:#888;margin-bottom:16px;">This session: ${sessionKnown} learned, ${sessionUnknown} still studying</div>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+          <button class="btn btn-primary" id="fc-again-unknown">Practice unknown (${WORDS.length - totalKnown})</button>
+          <button class="btn btn-outline" id="fc-again-all">All words</button>
+          <button class="btn btn-outline btn-sm" id="fc-reset" style="color:#999;border-color:#ddd;">Reset progress</button>
         </div>
       </div>`;
-    document.getElementById('fc-again').addEventListener('click', init);
+    document.getElementById('fc-again-unknown').addEventListener('click', () => init(true));
+    document.getElementById('fc-again-all').addEventListener('click', () => init(false));
+    document.getElementById('fc-reset').addEventListener('click', () => {
+      knownSet.clear(); saveKnown(knownSet); init(false);
+    });
   }
 
-  init();
+  init(false);
 })();
 </script>
 </body>

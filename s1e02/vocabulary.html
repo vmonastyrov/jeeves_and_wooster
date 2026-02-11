@@ -147,9 +147,10 @@
     display: inline-flex; align-items: center; justify-content: center;
     width: 28px; height: 28px; border: none; border-radius: 50%;
     background: var(--accent-light); color: var(--accent); cursor: pointer;
-    font-size: 1em; transition: all 0.15s; flex-shrink: 0;
+    transition: all 0.15s; flex-shrink: 0; padding: 0;
   }
   .speak-btn:hover { background: var(--accent); color: #fff; }
+  .speak-btn svg { width: 16px; height: 16px; fill: currentColor; }
   @media (max-width: 600px) {
     .word-term { min-width: auto; }
     .word-quote { display: none; }
@@ -1054,7 +1055,7 @@ function render(filter = 'all', search = '') {
   wordList.innerHTML = filtered.map((w, i) => `
     <div class="word-card" data-idx="${i}">
       <div class="word-header">
-        <button class="speak-btn" onclick="event.stopPropagation();speak('${w.term.replace(/'/g, "\\'")}')" title="Listen">&#128264;</button>
+        <button class="speak-btn" onclick="event.stopPropagation();speak('${w.term.replace(/'/g, "\\'")}')" title="Listen"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8.3v7.4a4.5 4.5 0 0 0 2.5-3.7zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg></button>
         <span class="word-term">${w.term}</span>
         <span class="word-tag tag-${w.tag}">${w.tag}</span>
         <span class="word-quote">"${w.quote}"</span>
