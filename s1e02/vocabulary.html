@@ -143,6 +143,13 @@
   .def-text:last-child { margin-bottom: 0; }
   .context-line { background: #f8f8f0; padding: 6px 10px; border-radius: 6px; font-style: italic; color: #555; font-size: 0.9em; margin-top: 4px; }
   .counter { text-align: center; color: #999; font-size: 0.85em; margin-bottom: 12px; }
+  .speak-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border: none; border-radius: 50%;
+    background: var(--accent-light); color: var(--accent); cursor: pointer;
+    font-size: 1em; transition: all 0.15s; flex-shrink: 0;
+  }
+  .speak-btn:hover { background: var(--accent); color: #fff; }
   @media (max-width: 600px) {
     .word-term { min-width: auto; }
     .word-quote { display: none; }
@@ -1017,6 +1024,25 @@ const uniqueWords = words.filter(w => {
 
 totalEl.textContent = `${uniqueWords.length} words & expressions`;
 
+// Speech synthesis (British English)
+function speak(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-GB';
+  u.rate = 0.85;
+  // Try to pick a British voice
+  const voices = window.speechSynthesis.getVoices();
+  const brit = voices.find(v => v.lang === 'en-GB') || voices.find(v => v.lang.startsWith('en'));
+  if (brit) u.voice = brit;
+  window.speechSynthesis.speak(u);
+}
+// Preload voices
+if (window.speechSynthesis) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+
 function render(filter = 'all', search = '') {
   const s = search.toLowerCase();
   const filtered = uniqueWords.filter(w => {
@@ -1028,6 +1054,7 @@ function render(filter = 'all', search = '') {
   wordList.innerHTML = filtered.map((w, i) => `
     <div class="word-card" data-idx="${i}">
       <div class="word-header">
+        <button class="speak-btn" onclick="event.stopPropagation();speak('${w.term.replace(/'/g, "\\'")}')" title="Listen">&#128264;</button>
         <span class="word-term">${w.term}</span>
         <span class="word-tag tag-${w.tag}">${w.tag}</span>
         <span class="word-quote">"${w.quote}"</span>
