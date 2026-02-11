@@ -21,7 +21,7 @@ header h1 { color: var(--accent); font-size: 1.8em; }
 header p { color: #666; font-size: 0.95em; }
 
 /* Tabs */
-.tabs { display: flex; gap: 4px; margin-bottom: 24px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tabs { display: flex; gap: 4px; margin-bottom: 24px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; justify-content: center; }
 .tab {
   padding: 10px 14px; border: 2px solid #ddd; border-radius: 10px 10px 0 0;
   background: #fff; cursor: pointer; font-weight: 600; font-size: 0.85em;
@@ -565,7 +565,9 @@ document.querySelectorAll('.tab').forEach(tab => {
       <div class="card" style="text-align:center;">
         <div style="color:#888;font-size:0.85em;margin-bottom:12px;">Listen to the word, then choose its meaning</div>
         <button class="speak-btn-lg" id="listen-play">${speakerSvg}</button>
-        <div style="color:#aaa;font-size:0.8em;margin-bottom:16px;">Tap to listen again</div>
+        <div id="listen-reveal" style="display:none;font-size:1.4em;font-weight:700;color:var(--accent);margin-bottom:8px;"></div>
+        <div id="listen-reveal-quote" style="display:none;font-style:italic;color:#999;font-size:0.85em;margin-bottom:12px;"></div>
+        <div id="listen-hint" style="color:#aaa;font-size:0.8em;margin-bottom:16px;">Tap to listen again</div>
         <div class="quiz-options" style="text-align:left;">${q.options.map((o, i) =>
           `<div class="quiz-opt" data-idx="${i}">${o}</div>`
         ).join('')}</div>
@@ -603,6 +605,15 @@ document.querySelectorAll('.tab').forEach(tab => {
       fb.className = 'quiz-feedback show wrong';
       fb.innerHTML = `Wrong. The word was <strong>"${q.word.term}"</strong> &mdash; "${q.answer}"`;
     }
+    // Reveal the word
+    const reveal = document.getElementById('listen-reveal');
+    reveal.textContent = q.word.term;
+    reveal.style.display = 'block';
+    const revealQuote = document.getElementById('listen-reveal-quote');
+    revealQuote.textContent = `"${q.word.quote}"`;
+    revealQuote.style.display = 'block';
+    document.getElementById('listen-hint').style.display = 'none';
+
     document.getElementById('listen-next').style.display = 'block';
     document.getElementById('listen-next-btn').addEventListener('click', () => { current++; render(); });
   }
