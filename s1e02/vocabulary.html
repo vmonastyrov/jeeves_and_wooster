@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocabulary — Jeeves &amp; Wooster S01E02</title>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --card-bg: #fff;
+    --accent: #2d2d6b;
+    --accent-light: #e8e8f4;
+    --tag-formal: #5b21b6;
+    --tag-slang: #b45309;
+    --tag-idiom: #0e7490;
+    --tag-archaic: #9f1239;
+    --tag-vocab: #047857;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: #1a1a1a;
+    line-height: 1.6;
+    padding: 20px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  header {
+    text-align: center;
+    padding: 30px 0 20px;
+    border-bottom: 2px solid var(--accent);
+    margin-bottom: 24px;
+  }
+  header h1 { color: var(--accent); font-size: 1.8em; margin-bottom: 4px; }
+  header p { color: #666; font-size: 0.95em; }
+  .stats {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin: 16px 0;
+    flex-wrap: wrap;
+  }
+  .stat {
+    background: var(--accent-light);
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .filter-btn {
+    padding: 6px 16px;
+    border: 2px solid #ccc;
+    border-radius: 20px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover { border-color: var(--accent); }
+  .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .search-box {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 20px;
+    display: block;
+    padding: 10px 16px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1em;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-box:focus { border-color: var(--accent); }
+  .word-list { display: flex; flex-direction: column; gap: 6px; }
+  .word-card {
+    background: var(--card-bg);
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+    cursor: pointer;
+  }
+  .word-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  .word-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    flex-wrap: wrap;
+  }
+  .word-term {
+    font-weight: 700;
+    font-size: 1.05em;
+    color: var(--accent);
+    min-width: 180px;
+  }
+  .word-tag {
+    font-size: 0.7em;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #fff;
+  }
+  .tag-formal { background: var(--tag-formal); }
+  .tag-slang { background: var(--tag-slang); }
+  .tag-idiom { background: var(--tag-idiom); }
+  .tag-archaic { background: var(--tag-archaic); }
+  .tag-vocab { background: var(--tag-vocab); }
+  .word-quote {
+    font-style: italic;
+    color: #777;
+    font-size: 0.85em;
+    flex: 1;
+    min-width: 200px;
+  }
+  .expand-icon {
+    margin-left: auto;
+    color: #aaa;
+    font-size: 1.2em;
+    transition: transform 0.2s;
+  }
+  .word-card.open .expand-icon { transform: rotate(180deg); }
+  .word-body {
+    display: none;
+    padding: 0 16px 14px;
+    border-top: 1px solid #eee;
+  }
+  .word-card.open .word-body { display: block; padding-top: 12px; }
+  .def-label { font-weight: 700; font-size: 0.8em; color: #999; text-transform: uppercase; margin-bottom: 2px; }
+  .def-text { margin-bottom: 10px; font-size: 0.95em; }
+  .def-text:last-child { margin-bottom: 0; }
+  .context-line { background: #f8f8f0; padding: 6px 10px; border-radius: 6px; font-style: italic; color: #555; font-size: 0.9em; margin-top: 4px; }
+  .counter { text-align: center; color: #999; font-size: 0.85em; margin-bottom: 12px; }
+  @media (max-width: 600px) {
+    .word-term { min-width: auto; }
+    .word-quote { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Jeeves &amp; Wooster S01E02</h1>
+  <p>"Bertie is in Love" &mdash; Vocabulary above B1</p>
+  <div class="stats">
+    <span class="stat" id="total-count"></span>
+    <span class="stat">Click a word to see its meaning</span>
+  </div>
+</header>
+
+<div class="filters">
+  <button class="filter-btn active" data-filter="all">All</button>
+  <button class="filter-btn" data-filter="formal">Formal / Jeeves</button>
+  <button class="filter-btn" data-filter="slang">Upper-class slang</button>
+  <button class="filter-btn" data-filter="idiom">Idioms</button>
+  <button class="filter-btn" data-filter="archaic">Archaic / Literary</button>
+  <button class="filter-btn" data-filter="vocab">Advanced vocab</button>
+</div>
+
+<input type="text" class="search-box" placeholder="Search words..." id="search">
+<div class="counter" id="counter"></div>
+<div class="word-list" id="wordList"></div>
+
+<script>
+const words = [
+  // ===== FORMAL / JEEVES-SPEAK =====
+  {
+    term: "distressingly",
+    tag: "formal",
+    quote: "Distressingly wilful, sir.",
+    meaning: "In a way that causes worry or sadness. Jeeves means the dog is behaving badly and it makes him unhappy.",
+    context: "Jeeves describes McIntosh the dog's behaviour."
+  },
+  {
+    term: "wilful",
+    tag: "formal",
+    quote: "Distressingly wilful, sir.",
+    meaning: "Doing what you want even when people tell you not to. Stubborn on purpose.",
+    context: "The dog does what it wants and ignores commands."
+  },
+  {
+    term: "garments",
+    tag: "formal",
+    quote: "Are you going to appear in public in those garments?",
+    meaning: "Clothes. A very formal word for things you wear.",
+    context: "Jeeves politely criticises Bertie's ugly golf trousers."
+  },
+  {
+    term: "comparable attire",
+    tag: "formal",
+    quote: "...often appears on the music hall stage in comparable attire.",
+    meaning: "'Comparable' means similar. 'Attire' means clothes. Together: similar-looking clothes. Jeeves is saying only a clown wears trousers like Bertie's.",
+    context: "Jeeves compares Bertie's outfit to a stage comedian's costume."
+  },
+  {
+    term: "desirous of",
+    tag: "formal",
+    quote: "Why are you so desirous of impressing Miss Wickham?",
+    meaning: "Wanting something very much. A very formal way to say 'wanting to'.",
+    context: "Jeeves asks why Bertie wants to impress Bobbie."
+  },
+  {
+    term: "espieglerie",
+    tag: "formal",
+    quote: "It is that very quality of espieglerie which debars Miss Wickham...",
+    meaning: "A French word meaning playful tricks, mischief. Jeeves uses fancy words to say Bobbie is too naughty.",
+    context: "Jeeves explains why Bobbie is wrong for Bertie."
+  },
+  {
+    term: "debars",
+    tag: "formal",
+    quote: "...which debars Miss Wickham from being a matrimonial prospect.",
+    meaning: "Prevents, stops someone from doing something or being something.",
+    context: "Jeeves says Bobbie's behaviour makes her unsuitable as a wife."
+  },
+  {
+    term: "matrimonial prospect",
+    tag: "formal",
+    quote: "...a matrimonial prospect for a gentleman of your description.",
+    meaning: "'Matrimonial' means related to marriage. 'Prospect' means a possible future option. Together: a possible person to marry.",
+    context: "Jeeves says Bobbie would not be a good wife for Bertie."
+  },
+  {
+    term: "frivolous",
+    tag: "formal",
+    quote: "Miss Wickham, in my opinion, sir, is too frivolous.",
+    meaning: "Not serious, caring only about fun and not about important things.",
+    context: "Jeeves gives his honest opinion of Bobbie."
+  },
+  {
+    term: "volatile",
+    tag: "formal",
+    quote: "Miss Wickham was frivolous, volatile...",
+    meaning: "Changing quickly and without warning. Unpredictable, especially about emotions or behaviour.",
+    context: "Bertie repeats Jeeves's earlier description of Bobbie."
+  },
+  {
+    term: "sufficient assiduity",
+    tag: "formal",
+    quote: "We are not keeping our eye on the ball with sufficient assiduity.",
+    meaning: "'Sufficient' means enough. 'Assiduity' means careful, hard-working attention. Together: not concentrating hard enough.",
+    context: "Jeeves politely says Bertie isn't paying attention to golf."
+  },
+  {
+    term: "concatenation of circumstance",
+    tag: "formal",
+    quote: "The concatenation of circumstance you describe was not entirely unforeseen.",
+    meaning: "A chain of events, one thing leading to another. Jeeves means he expected this mess would happen.",
+    context: "Jeeves admits he predicted the water bottle disaster."
+  },
+  {
+    term: "privily",
+    tag: "formal",
+    quote: "They would sneak privily into the party of the second part's cubicle.",
+    meaning: "Secretly, in a hidden way. An old-fashioned and formal word for 'secretly'.",
+    context: "Bertie describes the school prank of sneaking into someone's room."
+  },
+  {
+    term: "the party of the second part",
+    tag: "formal",
+    quote: "...into the party of the second part's cubicle.",
+    meaning: "Legal language meaning 'the other person'. Bertie uses legal words to sound clever (and funny).",
+    context: "Bertie tries to explain the prank in an overly formal way."
+  },
+  {
+    term: "remonstrate",
+    tag: "formal",
+    quote: "I shall have to go and remonstrate with her.",
+    meaning: "To complain to someone or argue against something they've done. Stronger than 'complain', more formal.",
+    context: "Bertie plans to tell Bobbie off about the lunch request."
+  },
+  {
+    term: "comestibles",
+    tag: "formal",
+    quote: "I shall go and purchase the comestibles.",
+    meaning: "Food and drink. A very formal and slightly humorous word for things you eat.",
+    context: "Jeeves offers to buy the food for the lunch."
+  },
+  {
+    term: "ingratiate herself",
+    tag: "formal",
+    quote: "In order to ingratiate herself to the boy's father...",
+    meaning: "To make someone like you by doing nice things for them, often to get something in return.",
+    context: "Bobbie gave the dog away to make the producer like her."
+  },
+  {
+    term: "propose a course of action",
+    tag: "formal",
+    quote: "May I propose a course of action, sir?",
+    meaning: "Suggest a plan. A very formal way to say 'I have an idea'.",
+    context: "Jeeves offers to help solve the dog problem."
+  },
+  {
+    term: "eccentric",
+    tag: "formal",
+    quote: "Mr Wooster is an eccentric.",
+    meaning: "A person who behaves in strange or unusual ways. Not crazy, but definitely odd.",
+    context: "Jeeves tells Blumenfield that Bertie is strange (to scare him away)."
+  },
+  {
+    term: "devotee",
+    tag: "formal",
+    quote: "I did not know you were a devotee of the opera.",
+    meaning: "A big fan, someone who loves something very much.",
+    context: "Cora is surprised to see Bertie at the opera."
+  },
+  {
+    term: "cease to entertain affection",
+    tag: "formal",
+    quote: "She would cease to entertain affection for him.",
+    meaning: "Stop loving someone. A very formal way to say 'she won't like him anymore'.",
+    context: "Jeeves predicts Cora will stop loving Tuppy."
+  },
+  {
+    term: "appearing to disadvantage",
+    tag: "formal",
+    quote: "Should Miss Bellinger witness Mr Glossop appearing to disadvantage...",
+    meaning: "Looking bad, making a fool of yourself in public.",
+    context: "Jeeves's plan depends on Tuppy looking stupid on stage."
+  },
+  {
+    term: "enthusiastically partisan",
+    tag: "formal",
+    quote: "Not a large gathering, sir, but enthusiastically partisan.",
+    meaning: "'Partisan' means strongly supporting one side. Jeeves is being ironic \u2014 the crowd is small but very noisy and opinionated.",
+    context: "Jeeves describes the audience at Beefy's charity show."
+  },
+  {
+    term: "the commencement",
+    tag: "formal",
+    quote: "I've been present since the commencement.",
+    meaning: "The beginning, the start. A very formal word.",
+    context: "Jeeves has been watching the show from the start."
+  },
+  {
+    term: "anticipate some such eventuality",
+    tag: "formal",
+    quote: "I confess that I had anticipated some such eventuality.",
+    meaning: "'Eventuality' means something that might happen. Jeeves means: 'I expected something like this would happen.'",
+    context: "Jeeves expected Tuppy and Cora would break up."
+  },
+  {
+    term: "accosting",
+    tag: "formal",
+    quote: "I took the liberty of accosting Miss Bellinger on her arrival.",
+    meaning: "Approaching someone and speaking to them, especially when they don't expect it.",
+    context: "Jeeves approached Cora when she arrived and tricked her into singing Sonny Boy."
+  },
+  {
+    term: "practical pleasantry",
+    tag: "formal",
+    quote: "She supposed that she had been the victim of a practical pleasantry.",
+    meaning: "A practical joke, a trick played on someone for fun. 'Pleasantry' makes it sound polite but the meaning is the same.",
+    context: "Cora thought Tuppy was playing a cruel joke on her."
+  },
+  {
+    term: "a wrench",
+    tag: "formal",
+    quote: "It will be a wrench at first, but you'll feel better for it.",
+    meaning: "A painful feeling when you have to give up something you like.",
+    context: "Jeeves about Bertie giving up his awful trousers."
+  },
+
+  // ===== UPPER-CLASS SLANG =====
+  {
+    term: "what ho",
+    tag: "slang",
+    quote: "What ho, Bobbie, Barmy!",
+    meaning: "Hello! A very old-fashioned British upper-class greeting. Nobody uses it today except as a joke.",
+    context: "Bertie's favourite way to say hello."
+  },
+  {
+    term: "look on the bright side",
+    tag: "slang",
+    quote: "Look on the bright side.",
+    meaning: "Think about the good things in a bad situation. Try to be positive.",
+    context: "Bertie tells Jeeves to be more optimistic about the dog."
+  },
+  {
+    term: "vivid",
+    tag: "slang",
+    quote: "What, a bit vivid, do you think?",
+    meaning: "Here: too bright, too colourful. Bertie asks if his trousers are too colourful.",
+    context: "Bertie checks if his clothes are too much."
+  },
+  {
+    term: "natty",
+    tag: "slang",
+    quote: "Yes, rather natty, eh?",
+    meaning: "Smart-looking, stylish. Old-fashioned British slang for 'looking good'.",
+    context: "Bertie thinks his golf trousers look great."
+  },
+  {
+    term: "hidebound",
+    tag: "slang",
+    quote: "He's notoriously hidebound over leg-wear.",
+    meaning: "Too traditional, unwilling to accept new ideas. Old-fashioned and strict in your thinking.",
+    context: "Bertie says Jeeves is too conservative about trousers."
+  },
+  {
+    term: "leg-wear",
+    tag: "slang",
+    quote: "...notoriously hidebound over leg-wear.",
+    meaning: "Trousers, pants \u2014 anything you wear on your legs.",
+    context: "Bertie's word for trousers."
+  },
+  {
+    term: "what ho",
+    tag: "slang",
+    quote: "What ho, Lady Wickham!",
+    meaning: "Hello! A very posh, old British greeting. Bertie uses it constantly.",
+    context: "Repeated greeting throughout the episode."
+  },
+  {
+    term: "dashed",
+    tag: "slang",
+    quote: "Mm, dashed awkward!",
+    meaning: "A polite version of 'damned'. Used to make something sound stronger: 'very' or 'really'.",
+    context: "Bertie's favourite mild swear word."
+  },
+  {
+    term: "bally",
+    tag: "slang",
+    quote: "Well, of all the bally nerve!",
+    meaning: "A polite replacement for 'bloody' (a British swear word). Means 'annoying' or is just used for emphasis.",
+    context: "Bertie is annoyed at Bobbie's demanding letter."
+  },
+  {
+    term: "dratted",
+    tag: "slang",
+    quote: "...while you read your mother's dratted play.",
+    meaning: "Annoying, unwanted. A mild, polite way to swear.",
+    context: "Bertie doesn't want to listen to Lady Wickham's play."
+  },
+  {
+    term: "blasted",
+    tag: "slang",
+    quote: "It's the blasted dog!",
+    meaning: "Annoying, terrible. A mild British swear word, stronger than 'dashed' but still polite.",
+    context: "Bertie is angry at the dog disturbing his golf."
+  },
+  {
+    term: "steady the buffs",
+    tag: "slang",
+    quote: "Oh, steady the buffs!",
+    meaning: "Calm down! Wait a moment! An old military expression meaning 'hold on, don't get too excited'.",
+    context: "Bertie reacts when Tuppy says he's in love."
+  },
+  {
+    term: "righto",
+    tag: "slang",
+    quote: "Oh, righto.",
+    meaning: "All right, OK. A casual, upper-class British way to agree.",
+    context: "Bertie casually agrees to take a phone call."
+  },
+  {
+    term: "topping",
+    tag: "slang",
+    quote: "Topping show!",
+    meaning: "Excellent, wonderful. Very old-fashioned British slang for 'great'.",
+    context: "Bertie compliments the opera performance."
+  },
+  {
+    term: "what-not",
+    tag: "slang",
+    quote: "...cocoa and cribbage in the reading room and what-not.",
+    meaning: "And other similar things. Used when you don't want to list everything.",
+    context: "Tuppy vaguely describes activities at the boys' club."
+  },
+  {
+    term: "a stick",
+    tag: "slang",
+    quote: "Don't be such a stick, Bertie.",
+    meaning: "A boring, serious person with no fun. Someone who won't join in.",
+    context: "Bobbie tells Bertie not to be so boring."
+  },
+  {
+    term: "by Jove",
+    tag: "slang",
+    quote: "By Jove! You mean, if he gets the bird, all will be off.",
+    meaning: "An old exclamation like 'Oh my God!' or 'Wow!' Jove is another name for the Roman god Jupiter.",
+    context: "Aunt Dahlia reacts excitedly to Jeeves's plan."
+  },
+  {
+    term: "jolly well",
+    tag: "slang",
+    quote: "I jolly well am!",
+    meaning: "Definitely, absolutely. Used for emphasis when you really mean something.",
+    context: "Tuppy insists he will sing Sonny Boy."
+  },
+  {
+    term: "Great Scott",
+    tag: "slang",
+    quote: "Well, Great Scott, Jeeves!",
+    meaning: "An old-fashioned exclamation of surprise. Like 'Oh my God!'",
+    context: "Bertie is shocked when Blumenfield arrives."
+  },
+  {
+    term: "the young master",
+    tag: "slang",
+    quote: "Jeeves, I think today you will be proud to see the young master...",
+    meaning: "Bertie talks about himself in third person, calling himself 'the young master' (the young boss of the house). It's humorous and shows his silly character.",
+    context: "Bertie boasts about his upcoming golf game."
+  },
+  {
+    term: "old bean / old thing",
+    tag: "slang",
+    quote: "(used throughout)",
+    meaning: "A friendly way to address someone. Like saying 'mate' or 'buddy' but very upper-class British.",
+    context: "Common term of address among Bertie and his friends."
+  },
+  {
+    term: "chilled steel",
+    tag: "slang",
+    quote: "I can be chilled steel, you know.",
+    meaning: "Very cold and firm, impossible to persuade. Bertie means he can be tough (though he never is).",
+    context: "Bertie claims he won't give in to Bobbie's demands."
+  },
+  {
+    term: "the little fella",
+    tag: "slang",
+    quote: "I'm really going to miss the little fella.",
+    meaning: "The little guy, the small one. An affectionate way to talk about a small dog or person.",
+    context: "Bertie talks fondly about McIntosh the dog."
+  },
+  {
+    term: "I'll say!",
+    tag: "slang",
+    quote: "Looking forward to the match, Barmy? \u2014 I'll say!",
+    meaning: "Yes, definitely! A strong way to agree with enthusiasm.",
+    context: "Barmy confirms he's excited for the golf match."
+  },
+
+  // ===== IDIOMS =====
+  {
+    term: "done ourselves a goose",
+    tag: "idiom",
+    quote: "Think of the goose we've done ourselves by nannying the beast.",
+    meaning: "Done ourselves a favour, gained an advantage. Looking after the dog will earn Bertie points with his aunt.",
+    context: "Bertie means caring for the dog will make Aunt Agatha happy with him."
+  },
+  {
+    term: "making tracks",
+    tag: "idiom",
+    quote: "We must be making tracks.",
+    meaning: "Leaving, going somewhere. Time to go.",
+    context: "Bertie says it's time to leave for golf."
+  },
+  {
+    term: "a walkover",
+    tag: "idiom",
+    quote: "Being drawn against him is the golfing equivalent of a walkover.",
+    meaning: "A very easy victory, no real competition.",
+    context: "Bertie thinks beating Barmy at golf will be very easy."
+  },
+  {
+    term: "condemned out of your own mouth",
+    tag: "idiom",
+    quote: "Exactly, Jeeves! Condemned out of your own mouth.",
+    meaning: "Your own words prove you are wrong. You accidentally proved my point.",
+    context: "Bertie thinks Jeeves's description of a strong husband actually describes him (it doesn't)."
+  },
+  {
+    term: "made a dog's breakfast of",
+    tag: "idiom",
+    quote: "I hear you made a dog's breakfast of your golf.",
+    meaning: "Made a complete mess of something, did it very badly.",
+    context: "Lady Wickham tells Bertie his golf was terrible."
+  },
+  {
+    term: "an absolute scream",
+    tag: "idiom",
+    quote: "Oh, he was an absolute scream!",
+    meaning: "Very funny, hilarious. Someone or something that makes you laugh a lot.",
+    context: "Bobbie says watching Bertie play golf was very funny."
+  },
+  {
+    term: "getting back at",
+    tag: "idiom",
+    quote: "The brainiest scheme for getting back at young Barmy.",
+    meaning: "Taking revenge on someone, doing something bad to them because they did something bad to you.",
+    context: "Bobbie's plan to get revenge on Barmy for beating Bertie at golf."
+  },
+  {
+    term: "at dead of night",
+    tag: "idiom",
+    quote: "Then, at dead of night, they would sneak privily...",
+    meaning: "In the middle of the night, when it's very dark and quiet and everyone is sleeping.",
+    context: "The prank must be done very late at night."
+  },
+  {
+    term: "slip one over",
+    tag: "idiom",
+    quote: "...necessary for the right-thinking element to slip one over certain of the baser sort.",
+    meaning: "To trick someone, to fool them successfully.",
+    context: "At Bobbie's school, good girls played tricks on bad girls."
+  },
+  {
+    term: "cold-bloodedly",
+    tag: "idiom",
+    quote: "You cold-bloodedly stood by and let me walk to my certain doom?",
+    meaning: "Without caring, without emotion. Doing something cruel as if it doesn't matter.",
+    context: "Bertie accuses Jeeves of knowingly letting him go to the wrong room."
+  },
+  {
+    term: "lend colour to",
+    tag: "idiom",
+    quote: "The occurrence may lend colour to the view which I put forward...",
+    meaning: "To support an idea, to make something seem more likely to be true.",
+    context: "Jeeves says the disaster proves he was right about Bobbie."
+  },
+  {
+    term: "all the rage",
+    tag: "idiom",
+    quote: "It's all the rage at the Drones at the moment.",
+    meaning: "Very popular, very fashionable right now.",
+    context: "Bertie says his silly song is very popular at his club."
+  },
+  {
+    term: "of all the nerve",
+    tag: "idiom",
+    quote: "Well, of all the bally nerve, Jeeves.",
+    meaning: "How dare she! What cheek! Expressing shock at someone's rude or bold behaviour.",
+    context: "Bertie is shocked by Bobbie's demanding note."
+  },
+  {
+    term: "banks on his verdict",
+    tag: "idiom",
+    quote: "Mr Blumenfield always banks on his verdict.",
+    meaning: "'Banks on' means relies on, trusts completely. Blumenfield trusts his son's opinion about plays.",
+    context: "The Broadway producer decides if a play is good based on what his 8-year-old son thinks."
+  },
+  {
+    term: "dropped her like a hot brick",
+    tag: "idiom",
+    quote: "He's gone and dropped Angela like a hot brick.",
+    meaning: "Suddenly stopped a relationship with someone, abandoned them quickly.",
+    context: "Tuppy suddenly stopped seeing Angela."
+  },
+  {
+    term: "child's play",
+    tag: "idiom",
+    quote: "A little thing like this should be child's play to Jeeves.",
+    meaning: "Something very easy to do.",
+    context: "Aunt Dahlia thinks the problem will be easy for Jeeves."
+  },
+  {
+    term: "gets the bird",
+    tag: "idiom",
+    quote: "If he gets the bird, all will be off.",
+    meaning: "To be booed by an audience, to be rejected publicly during a performance.",
+    context: "If the audience boos Tuppy, Cora will leave him."
+  },
+  {
+    term: "like a breeze",
+    tag: "idiom",
+    quote: "Like a breeze, Jeeves, like a breeze!",
+    meaning: "Very easily, without any problems.",
+    context: "Bertie successfully stole the dog back from the hotel."
+  },
+  {
+    term: "had a dog's breakfast",
+    tag: "idiom",
+    quote: "You made a dog's breakfast of your golf this morning.",
+    meaning: "Made a complete mess, did something very badly.",
+    context: "Lady Wickham mocks Bertie's terrible golf."
+  },
+  {
+    term: "the sporting spirit",
+    tag: "idiom",
+    quote: "One wonders if this is quite the sporting spirit.",
+    meaning: "Being fair and honest in competition. Good sportsmanship.",
+    context: "Jeeves questions whether revenge on Barmy is fair play."
+  },
+  {
+    term: "love is dead",
+    tag: "idiom",
+    quote: "Say no more, Jeeves. Love is dead.",
+    meaning: "The romantic feelings are completely gone. Often used dramatically.",
+    context: "Bertie gives up on Bobbie after her double trick."
+  },
+  {
+    term: "haunting the house",
+    tag: "idiom",
+    quote: "That blasted Glossop was all over my daughter... haunting the house.",
+    meaning: "Being at a place all the time, like a ghost. Always there, never leaving.",
+    context: "Aunt Dahlia says Tuppy was always at her house visiting Angela."
+  },
+  {
+    term: "feed out of the same bucket",
+    tag: "idiom",
+    quote: "...it was only a question of time before he suggested they should feed for life out of the same bucket.",
+    meaning: "Get married and live together. A funny, informal way to describe marriage.",
+    context: "Angela expected Tuppy would propose to her."
+  },
+  {
+    term: "the surgeon's knife",
+    tag: "idiom",
+    quote: "The surgeon's knife, eh, Jeeves?",
+    meaning: "A clean, precise action that solves a problem completely. Like a surgeon cutting out a disease.",
+    context: "Bertie compares the successful plan to a surgical operation."
+  },
+  {
+    term: "my heart has turned to stone",
+    tag: "idiom",
+    quote: "Personally my heart has turned to stone.",
+    meaning: "I have no feelings left, I don't care anymore. Said dramatically.",
+    context: "Bertie is exhausted after singing and doesn't care about anything."
+  },
+
+  // ===== ARCHAIC / LITERARY =====
+  {
+    term: "thee / thy / thine",
+    tag: "archaic",
+    quote: "Because God made thee mine, I'll cherish thee.",
+    meaning: "Old English words for 'you' and 'your'. Used in poetry, prayers, and songs. 'Thee' = you (object), 'thy' = your, 'thine' = yours.",
+    context: "From the song 'Because', sung at the recital."
+  },
+  {
+    term: "naught save",
+    tag: "archaic",
+    quote: "Because you come to me with naught save love.",
+    meaning: "'Naught' means nothing. 'Save' here means except. Together: 'nothing except'. Very poetic and old-fashioned.",
+    context: "Lyrics from the song at Lady Wickham's recital."
+  },
+  {
+    term: "mine eyes",
+    tag: "archaic",
+    quote: "And hold my hand and lift mine eyes above.",
+    meaning: "My eyes. 'Mine' was used instead of 'my' before vowel sounds in old English.",
+    context: "Old-fashioned poetic language in the song."
+  },
+  {
+    term: "cherish",
+    tag: "archaic",
+    quote: "I'll cherish thee through light and darkness.",
+    meaning: "To love and protect someone very much, to treat them as very special and important.",
+    context: "A promise of love in the song."
+  },
+  {
+    term: "'ee / 'im",
+    tag: "archaic",
+    quote: "Don't 'ee say nothing, Mrs Warminster.",
+    meaning: "Dialect pronunciation of 'you' and 'him'. Used in Lady Wickham's play to show a country character who speaks non-standard English.",
+    context: "A character in Lady Wickham's play speaks in dialect."
+  },
+  {
+    term: "cur",
+    tag: "archaic",
+    quote: "You cur!",
+    meaning: "A very old insult meaning a worthless, cowardly person. Originally meant a bad dog.",
+    context: "A dramatic insult in Lady Wickham's play."
+  },
+  {
+    term: "forsake",
+    tag: "archaic",
+    quote: "Friends may forsake me, let them all forsake me.",
+    meaning: "To leave someone who needs you, to abandon them. Very literary and emotional.",
+    context: "Lyrics from 'Sonny Boy'."
+  },
+
+  // ===== ADVANCED VOCABULARY =====
+  {
+    term: "tee off",
+    tag: "vocab",
+    quote: "I tee off at 11.30.",
+    meaning: "To start a round of golf by hitting the first ball. The 'tee' is the small stand you put the ball on.",
+    context: "Bertie is going to start his golf match."
+  },
+  {
+    term: "quarterfinals",
+    tag: "vocab",
+    quote: "Sail through to the quarterfinals at least.",
+    meaning: "The round in a tournament where 8 players compete (4 matches) to reach the semi-finals.",
+    context: "Bertie is confident about progressing in the golf tournament."
+  },
+  {
+    term: "knockout tournament",
+    tag: "vocab",
+    quote: "The Drones Club annual knockout golf tournament.",
+    meaning: "A competition where you leave if you lose. Win = stay in, lose = you're out.",
+    context: "The golf competition at Bertie's club."
+  },
+  {
+    term: "exploits",
+    tag: "vocab",
+    quote: "I hope Bobbie Wickham will be amazed at my exploits.",
+    meaning: "Brave or impressive actions, adventures. Often used about exciting achievements.",
+    context: "Bertie hopes to impress Bobbie with his golf."
+  },
+  {
+    term: "gadget",
+    tag: "vocab",
+    quote: "I've got this wonderful new gadget from Lillywhite's.",
+    meaning: "A small clever device or tool, especially a new one.",
+    context: "Barmy has a buzzing device that helps him time his golf swing."
+  },
+  {
+    term: "downswing",
+    tag: "vocab",
+    quote: "It buzzes to tell you when to start your downswing!",
+    meaning: "In golf, the movement of swinging the club down towards the ball.",
+    context: "Barmy's gadget tells him when to swing."
+  },
+  {
+    term: "finesse",
+    tag: "vocab",
+    quote: "It's finesse, you know.",
+    meaning: "Skill and cleverness in handling a difficult situation. Doing something with style and precision.",
+    context: "Bertie describes his golf strategy (which then fails completely)."
+  },
+  {
+    term: "backspin",
+    tag: "vocab",
+    quote: "Let it drift onto the green with backspin.",
+    meaning: "In golf: when the ball spins backward, which makes it stop quickly when it lands.",
+    context: "Bertie's ambitious (and impossible) golf plan."
+  },
+  {
+    term: "dogleg",
+    tag: "vocab",
+    quote: "Then dogleg it round the wood.",
+    meaning: "In golf: a hole or shot that bends left or right, like a dog's back leg.",
+    context: "Part of Bertie's overly complicated golf shot plan."
+  },
+  {
+    term: "quail high",
+    tag: "vocab",
+    quote: "Drill it straight out through the trees, quail high.",
+    meaning: "As high as a flying quail (a small bird). Golf slang for a low, fast shot.",
+    context: "Bertie describes the height of his planned golf shot."
+  },
+  {
+    term: "cubicle",
+    tag: "vocab",
+    quote: "...into the party of the second part's cubicle.",
+    meaning: "A small, separated sleeping area, especially in a school dormitory.",
+    context: "At Bobbie's school, each girl slept in a small separate space."
+  },
+  {
+    term: "darning needle",
+    tag: "vocab",
+    quote: "They used to attach a darning needle to it.",
+    meaning: "A large, thick needle used for repairing holes in socks and clothes. 'Darning' means fixing holes by sewing.",
+    context: "The tool used in the water bottle prank."
+  },
+  {
+    term: "helpmeet",
+    tag: "vocab",
+    quote: "Anyone who can think up a wheeze like that is my idea of a helpmeet.",
+    meaning: "A helpful partner, especially a wife. An old-fashioned word from the Bible.",
+    context: "Bertie says Bobbie would make a great wife because she's clever at pranks."
+  },
+  {
+    term: "wheeze",
+    tag: "vocab",
+    quote: "Anyone who can think up a wheeze like that...",
+    meaning: "A clever idea or trick. British slang for a cunning plan.",
+    context: "Bertie admires Bobbie's prank idea."
+  },
+  {
+    term: "aniseed",
+    tag: "vocab",
+    quote: "Our first requirement is for aniseed.",
+    meaning: "Seeds from the anise plant. They have a strong, sweet smell. Dogs are attracted to it.",
+    context: "Jeeves's plan to attract McIntosh the dog."
+  },
+  {
+    term: "dognapping",
+    tag: "vocab",
+    quote: "Aniseed is extensively used in the dognapping industry.",
+    meaning: "Stealing dogs. Like 'kidnapping' but for dogs.",
+    context: "Jeeves knows surprisingly much about stealing dogs."
+  },
+  {
+    term: "mouldings",
+    tag: "vocab",
+    quote: "Careful of those mouldings, George.",
+    meaning: "Decorative strips of wood or plaster on walls and ceilings. Found in old, expensive houses.",
+    context: "Workers are decorating Bertie's flat."
+  },
+  {
+    term: "hound's tooth check",
+    tag: "vocab",
+    quote: "Shall I lay out our hound's tooth check suit?",
+    meaning: "A pattern on fabric that looks like small broken squares. A classic pattern for suits and jackets.",
+    context: "Jeeves suggests which suit Bertie should wear."
+  },
+  {
+    term: "plus sixes",
+    tag: "vocab",
+    quote: "Those plus sixes, Jeeves. Get rid of them.",
+    meaning: "A type of wide, baggy trousers that end below the knee. Worn for golf in the early 1900s. Similar to 'plus fours' but longer.",
+    context: "Bertie's terrible golf trousers that Jeeves hated throughout the episode."
+  },
+  {
+    term: "baritone",
+    tag: "vocab",
+    quote: "Mr Wooster has a pleasant light baritone.",
+    meaning: "A male singing voice between tenor (high) and bass (low). The most common male voice type.",
+    context: "Jeeves describes Bertie's singing voice."
+  },
+  {
+    term: "soprano",
+    tag: "vocab",
+    quote: "Miss Cora Bellinger, the well-known operatic soprano.",
+    meaning: "The highest female singing voice. Cora is an opera singer with a high voice.",
+    context: "Cora's introduction at the charity show."
+  },
+  {
+    term: "in mourning",
+    tag: "vocab",
+    quote: "Are you in mourning for someone?",
+    meaning: "Showing sadness after someone has died, usually by wearing dark or unusual clothes.",
+    context: "Someone jokes that Bertie's trousers are so dark/ugly he must be mourning."
+  },
+  {
+    term: "infatuated",
+    tag: "vocab",
+    quote: "I hear he's infatuated with some singer.",
+    meaning: "Having very strong feelings of love that are often short and not based on reality. A crush.",
+    context: "Aunt Dahlia describes Tuppy's feelings for Cora."
+  },
+  {
+    term: "devilish ingenuity",
+    tag: "vocab",
+    quote: "Mark my devilish ingenuity, Bertie.",
+    meaning: "'Devilish' means very clever (like the devil). 'Ingenuity' means creative cleverness. Together: extremely clever thinking.",
+    context: "Tuppy is proud of his plan to impress Cora."
+  },
+  {
+    term: "good works",
+    tag: "vocab",
+    quote: "Cora's frightfully keen on good works.",
+    meaning: "Charity work, helping poor or sick people. Kind actions to help others.",
+    context: "Cora cares about helping people, which is why Tuppy volunteers at the boys' club."
+  },
+  {
+    term: "cribbage",
+    tag: "vocab",
+    quote: "Cocoa and cribbage in the reading room.",
+    meaning: "A card game, usually played by two people with a special board for keeping score.",
+    context: "One of the activities at Beefy's boys' club."
+  },
+  {
+    term: "the bird was hovering",
+    tag: "vocab",
+    quote: "The bird was hovering in the air. I could feel the beating of its wings.",
+    meaning: "Here 'the bird' means booing from the audience. Bertie could feel the audience was about to boo him. A metaphor \u2014 the bad reaction was close, like a bird flying above him.",
+    context: "Bertie felt the audience was close to booing during his song."
+  },
+  {
+    term: "blundered grievously",
+    tag: "vocab",
+    quote: "Jeeves, you have blundered grievously.",
+    meaning: "'Blundered' means made a serious mistake. 'Grievously' means very badly, seriously. Together: you've made a terrible error.",
+    context: "Bertie accuses Jeeves of giving him the wrong room information."
+  },
+  {
+    term: "gall",
+    tag: "vocab",
+    quote: "I don't see how you have the gall...",
+    meaning: "Rude courage, nerve. The confidence to do something rude or unreasonable.",
+    context: "Bertie can't believe Bobbie dares to ask him for favours after tricking him."
+  },
+  {
+    term: "specifies the menu",
+    tag: "vocab",
+    quote: "She even specifies the menu.",
+    meaning: "'Specifies' means states exactly, gives precise details about. Bobbie even told Bertie exactly what food to serve.",
+    context: "Bobbie's demanding lunch request."
+  },
+  {
+    term: "roly-poly pudding",
+    tag: "vocab",
+    quote: "Roly-poly pudding with jam.",
+    meaning: "A traditional British dessert: a roll of pastry filled with jam and steamed or baked.",
+    context: "Part of the childish menu Bobbie requests."
+  },
+  {
+    term: "took a fancy to",
+    tag: "vocab",
+    quote: "The child took a fancy to the animal.",
+    meaning: "Started to like something very much, became attracted to it.",
+    context: "The Blumenfield boy really liked McIntosh the dog."
+  }
+];
+
+// Render
+const wordList = document.getElementById('wordList');
+const searchInput = document.getElementById('search');
+const counterEl = document.getElementById('counter');
+const totalEl = document.getElementById('total-count');
+
+// Deduplicate by term (keep first occurrence)
+const seen = new Set();
+const uniqueWords = words.filter(w => {
+  const key = w.term.toLowerCase();
+  if (seen.has(key)) return false;
+  seen.add(key);
+  return true;
+});
+
+totalEl.textContent = `${uniqueWords.length} words & expressions`;
+
+function render(filter = 'all', search = '') {
+  const s = search.toLowerCase();
+  const filtered = uniqueWords.filter(w => {
+    if (filter !== 'all' && w.tag !== filter) return false;
+    if (s && !w.term.toLowerCase().includes(s) && !w.meaning.toLowerCase().includes(s)) return false;
+    return true;
+  });
+  counterEl.textContent = `Showing ${filtered.length} of ${uniqueWords.length}`;
+  wordList.innerHTML = filtered.map((w, i) => `
+    <div class="word-card" data-idx="${i}">
+      <div class="word-header">
+        <span class="word-term">${w.term}</span>
+        <span class="word-tag tag-${w.tag}">${w.tag}</span>
+        <span class="word-quote">"${w.quote}"</span>
+        <span class="expand-icon">&#9660;</span>
+      </div>
+      <div class="word-body">
+        <div class="def-label">Meaning (simple English)</div>
+        <div class="def-text">${w.meaning}</div>
+        <div class="def-label">Context in the episode</div>
+        <div class="def-text context-line">${w.context}</div>
+      </div>
+    </div>
+  `).join('');
+
+  wordList.querySelectorAll('.word-card').forEach(card => {
+    card.addEventListener('click', () => card.classList.toggle('open'));
+  });
+}
+
+// Filters
+let currentFilter = 'all';
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    render(currentFilter, searchInput.value);
+  });
+});
+
+searchInput.addEventListener('input', () => render(currentFilter, searchInput.value));
+
+render();
+</script>
+</body>
+</html>
